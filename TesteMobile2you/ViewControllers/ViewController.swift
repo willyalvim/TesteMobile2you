@@ -30,7 +30,9 @@ final class ViewController: UIViewController {
         super.viewDidLoad()
         moviesTableView.dataSource = self
         moviesTableView.delegate = self
-        getData()
+        getData{movieJson in
+            self.currentMovie = movieJson
+        }
         getSimilarMovies()
         
         let maskLayer = CAGradientLayer(layer: coverImageView.layer)
@@ -106,12 +108,13 @@ extension ViewController {
         }
     }
     
-    func getData() {
+    func getData(onsuccess:@escaping (Movie?)-> Void) {
         AF.request(Constants.movieUrl).responseData { response in
             switch response.result {
             case .success(let data):
                 let movieJson = try? JSONDecoder().decode(Movie.self, from: data)
-                self.currentMovie = movieJson
+                onsuccess(movieJson)
+                
                 
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
